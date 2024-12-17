@@ -1,0 +1,49 @@
+Abstract Class - CipherMachine
+Methods:
+
+Public:
+encipher(pt: str) -> ciphertext
+decipher(ct: str) -> plaintext
+set_key(key)
+key() -> key
+
+Private:
+_clean_input(text: str) -> cleaned text input
+_create_grid(key: str, size=5: int) -> square grid of specified size with provided key
+_rm_dup(str) -> string with repeat characters removed
+
+Subclasses:
+Monoalphabetic -> Shift, Kamasutra
+    __init__(key: str)
+    -> Shift
+        Public:
+        __init__(key: int)
+        Private:
+        _shift(key: int)
+    -> Kamasutra?
+        Public:
+        __init__(key: set{set})
+        Private:
+        _create_alpha(pairs: list[set]) -> str: a 26 letter alphabet with the input pairs inserted in the proper position.
+
+Vigenere -> Autokey, OTP
+    __init__(key: str)
+    -> Autokey
+    -> OTP
+        Public:
+        __init__()
+        Private:
+        _create_key(length: int) -> str: a random string of the specified length
+
+Playfair
+Railfence
+Columnar Transposition
+Double Transposition?
+Polybius Square
+Straddling Checkerboard
+ADFGX <-> ADFGVX
+Trifid
+Enigma - Will have a different init method
+
+Later ones might come from this:
+https://en.wikipedia.org/wiki/Category:Classical_ciphers
