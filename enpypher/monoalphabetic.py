@@ -27,7 +27,7 @@ class Monoalphabetic(CipherMachine):
                 ct += char
         return ct
 
-    def decipher(self, ct):
+    def decipher(self, ct: str) -> str:
         """Deciphers the provided ciphertext if it was enciphered with a monoalphabetic
         substitution cipher and the same key. If the text was not originally enciphered
         with an MA cipher or with a different key, it will likely result in an unexpected
@@ -48,7 +48,13 @@ class Monoalphabetic(CipherMachine):
                 pt += char
         return pt
 
-    def set_key(self, key):
+    def set_key(self, key: str) -> str:
+        """Set a new key for the Monoalphabetic cipher. Any non-alphabetic
+        characters will be removed from the key for the internal representation.
+
+        Args:
+            key (str): The new key.
+        """
         self.input_key = key
         self.clean_key = self._rm_dup(self._clean_input(self.input_key))
         remain = string.ascii_uppercase
@@ -57,5 +63,11 @@ class Monoalphabetic(CipherMachine):
                 remain = remain.replace(char, "")
         self.clean_key = self.clean_key + remain
 
-    def key(self):
+    def key(self) -> tuple[str, str]:
+        """Return a tuple containing the internal key representation as well
+        as the original input key.
+
+        Returns:
+            tuple[str, str]: The internal key followed by the original key.
+        """
         return (self.clean_key, self.input_key)
