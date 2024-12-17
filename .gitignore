@@ -1,5 +1,10 @@
+# python cache
 **/__pychache__
-*.pyc
 .pytest_cache
-.vscode
+*.pyc
+
+# VS Code
+#.vscode
+
+# Project Specific
 doc/Design.txt
