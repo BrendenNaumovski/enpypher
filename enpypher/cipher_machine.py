@@ -5,7 +5,6 @@ from abc import ABC, abstractmethod
 from typing import List
 
 from num2words import num2words
-from unidecode import unidecode
 
 
 class CipherMachine(ABC):
@@ -365,7 +364,10 @@ class CipherMachine(ABC):
                 i += 1
 
         if not accent:
-            text = unidecode(text)
+            normal = unicodedata.normalize("NFD", text)
+            text = "".join(
+                c for c in normal if unicodedata.category(c) != "Mn"
+            )
 
         if not space:
             for char in string.whitespace:

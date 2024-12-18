@@ -4,13 +4,14 @@ from enpypher.cipher_machine import CipherMachine
 
 
 class Monoalphabetic(CipherMachine):
-    def __init__(self, key: str):
+    def __init__(self, key: str, alpha=string.ascii_uppercase):
+        self.alpha = alpha.upper()
         self.set_key(key)
 
     def encipher(self, pt: str) -> str:
         """Enciphers the provided plaintext with a monoalphabetic substitution
-        cipher and the input key. All non-alphabetic characters will remain the
-        unenciphered and in the same position.
+        cipher and the input key. All non-alphabetic characters will remain
+        unenciphered.
 
         Args:
             pt (str): The plaintext to be enciphered.
@@ -21,8 +22,8 @@ class Monoalphabetic(CipherMachine):
         pt = pt.upper()
         ct = ""
         for char in pt:
-            if char in string.ascii_uppercase:
-                ct += self.clean_key[string.ascii_uppercase.index(char)]
+            if char in self.alpha:
+                ct += self.clean_key[self.alpha.index(char)]
             else:
                 ct += char
         return ct
@@ -42,22 +43,25 @@ class Monoalphabetic(CipherMachine):
         ct = ct.upper()
         pt = ""
         for char in ct:
-            if char in string.ascii_uppercase:
-                pt += string.ascii_lowercase[self.clean_key.index(char)]
+            if char in self.alpha:
+                pt += self.alpha[self.clean_key.index(char)]
             else:
                 pt += char
-        return pt
+        return pt.lower()
 
     def set_key(self, key: str) -> str:
-        """Set a new key for the Monoalphabetic cipher. Any non-alphabetic
-        characters will be removed from the key for the internal representation.
+        """Set a new key for the Monoalphabetic cipher. Input will be normalized.
+        Any non-alphabetic characters will be removed from the key for the
+        internal representation. Accents and diacritics will be removed. Any
+        duplicate character occuring after the first instance will be remvoed.
+        The key should not contain any characters not in the chosen alphabet.
 
         Args:
             key (str): The new key.
         """
         self.input_key = key
         self.clean_key = self._rm_dup(self._clean_input(self.input_key))
-        remain = string.ascii_uppercase
+        remain = self.alpha
         for char in self.clean_key:
             if char in remain:
                 remain = remain.replace(char, "")
