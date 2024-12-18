@@ -4,151 +4,193 @@ from enpypher.monoalphabetic import Monoalphabetic
 
 
 @pytest.mark.parametrize(
-    "key, pt, ct",
+    "init, pt, ct",
     [
         (
-            "key",
+            ["key"],
             "thequickbrownfoxjumpsoverthelazydog",
             "SFBPTGYIEQNVMCNWHTLORNUBQSFBJKZXAND",
         ),
         (
-            "KEY",
+            ["KEY"],
             "thequickbrownfoxjumpsoverthelazydog",
             "SFBPTGYIEQNVMCNWHTLORNUBQSFBJKZXAND",
         ),
         (
-            "key",
+            ["key"],
             "THEQUICKBROWNFOXJUMPSOVERTHELAZYDOG",
             "SFBPTGYIEQNVMCNWHTLORNUBQSFBJKZXAND",
         ),
         (
-            "key",
+            ["key"],
             "the quick brown fox jumps over the lazy dog",
             "SFB PTGYI EQNVM CNW HTLOR NUBQ SFB JKZX AND",
         ),
         (
-            "key",
+            ["key"],
             "the quick brown fox jumps over 3 lazy dogs.",
             "SFB PTGYI EQNVM CNW HTLOR NUBQ 3 JKZX ANDR.",
         ),
         (
-            "thequickbrownfoxjumpsoverthelazydog",
+            ["key"],
+            "1234567890",
+            "1234567890",
+        ),
+        (
+            ["thequickbrownfoxjumpsoverthelazydog"],
             "plaintext",
             "JWTBFVUYV",
         ),
         (
-            "the quick brown fox jumps over 3 lazy dogs.",
+            ["the quick brown fox jumps over 3 lazy dogs."],
             "plaintext",
             "JWTBFVUYV",
         ),
         (
-            "secret",
+            ["secret"],
             "thequickbrownfoxjumpsoverthelazydog",
             "QDTNUFCHEOLWKALXGUJMPLVTOQDTISZYRLB",
         ),
         (
-            "defghijklmnopqrstuvwxyzabc",
+            ["defghijklmnopqrstuvwxyzabc"],
             "thequickbrownfoxjumpsoverthelazydog",
             "WKHTXLFNEURZQIRAMXPSVRYHUWKHODCBGRJ",
         ),
         (
-            "key",
-            "1234567890",
-            "1234567890",
+            ["Ελλάδα", "ΑΒΓΔΕΖΗΘΙΚΛΜΝΞΟΠΡΣΤΥΦΧΨΩ"],
+            "Καλημέρα",
+            "ΙΕΚΖΜΒΡΕ",
+        ),
+        (
+            ["ΜΥΣΤΙΚΟ", "ΑΒΓΔΕΖΗΘΙΚΛΜΝΞΟΠΡΣΤΥΦΧΨΩ"],
+            "Η γρήγορη καφετιά αλεπού πηδά πάνω από το τεμπέλικο σκυλί.",
+            "Ο ΣΝΟΣΘΝΟ ΓΜΦΙΠΒΜ ΜΔΙΛΘΡ ΛΟΤΜ ΛΜΖΩ ΜΛΘ ΠΘ ΠΙΕΛΙΔΒΓΘ ΞΓΡΔΒ.",
         ),
     ],
 )
-def test_encipher(key, pt, ct):
-    ma = Monoalphabetic(key)
+def test_encipher(init, pt, ct):
+    ma = Monoalphabetic(*init)
     assert ma.encipher(pt) == ct
 
 
 @pytest.mark.parametrize(
-    "key, ct, pt",
+    "init, ct, pt",
     [
         (
-            "key",
+            ["key"],
             "SFBPTGYIEQNVMCNWHTLORNUBQSFBJKZXAND",
             "thequickbrownfoxjumpsoverthelazydog",
         ),
         (
-            "KEY",
+            ["KEY"],
             "SFBPTGYIEQNVMCNWHTLORNUBQSFBJKZXAND",
             "thequickbrownfoxjumpsoverthelazydog",
         ),
         (
-            "key",
+            ["key"],
             "sfbptgyieqnvmcnwhtlornubqsfbjkzxand",
             "thequickbrownfoxjumpsoverthelazydog",
         ),
         (
-            "key",
+            ["key"],
             "SFB PTGYI EQNVM CNW HTLOR NUBQ SFB JKZX AND",
             "the quick brown fox jumps over the lazy dog",
         ),
         (
-            "key",
+            ["key"],
             "SFB PTGYI EQNVM CNW HTLOR NUBQ 3 JKZX ANDR.",
             "the quick brown fox jumps over 3 lazy dogs.",
         ),
         (
-            "thequickbrownfoxjumpsoverthelazydog",
+            ["key"],
+            "1234567890",
+            "1234567890",
+        ),
+        (
+            ["thequickbrownfoxjumpsoverthelazydog"],
             "JWTBFVUYV",
             "plaintext",
         ),
         (
-            "the quick brown fox jumps over 3 lazy dogs.",
+            ["the quick brown fox jumps over 3 lazy dogs."],
             "JWTBFVUYV",
             "plaintext",
         ),
         (
-            "secret",
+            ["secret"],
             "QDTNUFCHEOLWKALXGUJMPLVTOQDTISZYRLB",
             "thequickbrownfoxjumpsoverthelazydog",
         ),
         (
-            "defghijklmnopqrstuvwxyzabc",
+            ["defghijklmnopqrstuvwxyzabc"],
             "WKHTXLFNEURZQIRAMXPSVRYHUWKHODCBGRJ",
             "thequickbrownfoxjumpsoverthelazydog",
         ),
         (
-            "key",
-            "1234567890",
-            "1234567890",
+            ["Ελλάδα", "ΑΒΓΔΕΖΗΘΙΚΛΜΝΞΟΠΡΣΤΥΦΧΨΩ"],
+            "ΙΕΚΖΜΒΡΕ",
+            "καλημερα",
+        ),
+        (
+            ["ΜΥΣΤΙΚΟ", "ΑΒΓΔΕΖΗΘΙΚΛΜΝΞΟΠΡΣΤΥΦΧΨΩ"],
+            "Ο ΣΝΟΣΘΝΟ ΓΜΦΙΠΒΜ ΜΔΙΛΘΡ ΛΟΤΜ ΛΜΖΩ ΜΛΘ ΠΘ ΠΙΕΛΙΔΒΓΘ ΞΓΡΔΒ.",
+            "η γρηγορη καφετια αλεπου πηδα πανω απο το τεμπελικο σκυλι.",
         ),
     ],
 )
-def test_decipher(key, ct, pt):
-    ma = Monoalphabetic(key)
+def test_decipher(init, ct, pt):
+    ma = Monoalphabetic(*init)
     assert ma.decipher(ct) == pt
 
 
 @pytest.mark.parametrize(
-    "key, exp_key",
+    "init, exp_key",
     [
-        ("key", ("KEYABCDFGHIJLMNOPQRSTUVWXZ", "key")),
-        ("KEY", ("KEYABCDFGHIJLMNOPQRSTUVWXZ", "KEY")),
-        ("secret", ("SECRTABDFGHIJKLMNOPQUVWXYZ", "secret")),
+        (["key"], ("KEYABCDFGHIJLMNOPQRSTUVWXZ", "key")),
+        (["KEY"], ("KEYABCDFGHIJLMNOPQRSTUVWXZ", "KEY")),
+        (["secret"], ("SECRTABDFGHIJKLMNOPQUVWXYZ", "secret")),
         (
-            "defghijklmnopqrstuvwxyzabc",
+            ["defghijklmnopqrstuvwxyzabc"],
             ("DEFGHIJKLMNOPQRSTUVWXYZABC", "defghijklmnopqrstuvwxyzabc"),
         ),
         (
-            "thequickbrownfoxjumpsoverthelazydog",
+            ["thequickbrownfoxjumpsoverthelazydog"],
             (
                 "THEQUICKBROWNFXJMPSVLAZYDG",
                 "thequickbrownfoxjumpsoverthelazydog",
             ),
         ),
         (
-            "the quick brown fox jumps over 3 lazy dogs.",
+            ["the quick brown fox jumps over 3 lazy dogs."],
             (
                 "THEQUICKBROWNFXJMPSVLAZYDG",
                 "the quick brown fox jumps over 3 lazy dogs.",
             ),
         ),
+        (
+            ["ΜΥΣΤΙΚΟ", "ΑΒΓΔΕΖΗΘΙΚΛΜΝΞΟΠΡΣΤΥΦΧΨΩ"],
+            (
+                "ΜΥΣΤΙΚΟΑΒΓΔΕΖΗΘΛΝΞΠΡΦΧΨΩ",
+                "ΜΥΣΤΙΚΟ",
+            ),
+        ),
     ],
 )
-def test_key(key, exp_key):
-    ma = Monoalphabetic(key)
+def test_key(init, exp_key):
+    ma = Monoalphabetic(*init)
     assert ma.key() == exp_key
+
+
+@pytest.mark.parametrize(
+    "init, exp_alpha",
+    [
+        (["key"], "ABCDEFGHIJKLMNOPQRSTUVWXYZ"),
+        (
+            ["ΜΥΣΤΙΚΟ", "ΑΒΓΔΕΖΗΘΙΚΛΜΝΞΟΠΡΣΤΥΦΧΨΩ"],
+            "ΑΒΓΔΕΖΗΘΙΚΛΜΝΞΟΠΡΣΤΥΦΧΨΩ",
+        ),
+    ],
+)
+def test_alphabet(init, exp_alpha):
+    ma = Monoalphabetic(*init)
+    assert ma.alphabet() == exp_alpha

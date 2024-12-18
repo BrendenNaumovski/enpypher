@@ -11,7 +11,7 @@ class Monoalphabetic(CipherMachine):
     def encipher(self, pt: str) -> str:
         """Enciphers the provided plaintext with a monoalphabetic substitution
         cipher and the input key. All non-alphabetic characters will remain
-        unenciphered.
+        unenciphered. Diacritics will be removed.
 
         Args:
             pt (str): The plaintext to be enciphered.
@@ -19,7 +19,9 @@ class Monoalphabetic(CipherMachine):
         Returns:
             str: The enciphered text
         """
-        pt = pt.upper()
+        pt = self._clean_input(
+            pt, True, True, False, True, False, False, True, False
+        )
         ct = ""
         for char in pt:
             if char in self.alpha:
@@ -43,18 +45,21 @@ class Monoalphabetic(CipherMachine):
         ct = ct.upper()
         pt = ""
         for char in ct:
-            if char in self.alpha:
+            if char in self.clean_key:
                 pt += self.alpha[self.clean_key.index(char)]
             else:
                 pt += char
         return pt.lower()
 
-    def set_key(self, key: str) -> str:
+    def set_key(self, key: str):
         """Set a new key for the Monoalphabetic cipher. Input will be normalized.
         Any non-alphabetic characters will be removed from the key for the
         internal representation. Accents and diacritics will be removed. Any
-        duplicate character occuring after the first instance will be remvoed.
-        The key should not contain any characters not in the chosen alphabet.
+        duplicate character occuring after the first instance will be removed.
+        The key should not contain any characters not in the chosen alphabet. If
+        the key is not as long as the alphabet, characters from the beginning of
+        the alphabet will be added until the length is the same. If the key is
+        longer than the alphabet, the key will be shortened to match the length.
 
         Args:
             key (str): The new key.
@@ -65,7 +70,18 @@ class Monoalphabetic(CipherMachine):
         for char in self.clean_key:
             if char in remain:
                 remain = remain.replace(char, "")
-        self.clean_key = self.clean_key + remain
+        self.clean_key = (self.clean_key + remain)[: len(self.alpha)]
+
+    def set_alpha(self, alpha: str):
+        """Set a new plaintext alphabet for the Monoalphabetic cipher. Any
+        duplicate character occuring after the first instance will be removed.
+
+        Args:
+            alpha (str): The new alphabet.
+        """
+        self.alpha = self._clean_input(
+            alpha, True, True, False, True, False, False, True, False
+        )
 
     def key(self) -> tuple[str, str]:
         """Return a tuple containing the internal key representation as well
@@ -75,3 +91,11 @@ class Monoalphabetic(CipherMachine):
             tuple[str, str]: The internal key followed by the original key.
         """
         return (self.clean_key, self.input_key)
+
+    def alphabet(self) -> str:
+        """Return the alphabet currently being used by the Monoalphabetic cipher.
+
+        Returns:
+            str: The current alphabet.
+        """
+        return self.alpha
