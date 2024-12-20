@@ -5,7 +5,18 @@ from enpypher.cipher_machine import CipherMachine
 
 class Monoalphabetic(CipherMachine):
     def __init__(self, key: str, alpha=string.ascii_uppercase):
-        self.alpha = alpha.upper()
+        """A monoalphabetic substitution cipher maps each letter from a plaintext
+        alphabet to a substitution alphabet in a one for one manner. A monoalphabetic
+        object will take a key (substitution alphabet) and alphabet (English by default)
+        as input and when a call to encipher() is made, will replace every letter
+        in the provided plaintext with the corresponding letter in the key. When a call to
+        decipher() is made, the reverse will occur.
+
+        Args:
+            key (str): The substitution alphabet (partial or whole).
+            alpha (str, optional): The plaintext alphabet. Defaults to string.ascii_uppercase.
+        """
+        self.set_alpha(alpha)
         self.set_key(key)
 
     def encipher(self, pt: str) -> str:
@@ -22,13 +33,13 @@ class Monoalphabetic(CipherMachine):
         pt = self._clean_input(
             pt, True, True, False, True, False, False, True, False
         )
-        ct = ""
+        ct = []
         for char in pt:
             if char in self.alpha:
-                ct += self.clean_key[self.alpha.index(char)]
+                ct.append(self.clean_key[self.alpha.index(char)])
             else:
-                ct += char
-        return ct
+                ct.append(char)
+        return "".join(ct)
 
     def decipher(self, ct: str) -> str:
         """Deciphers the provided ciphertext if it was enciphered with a monoalphabetic
@@ -43,16 +54,16 @@ class Monoalphabetic(CipherMachine):
             str: The deciphered text.
         """
         ct = ct.upper()
-        pt = ""
+        pt = []
         for char in ct:
             if char in self.clean_key:
-                pt += self.alpha[self.clean_key.index(char)]
+                pt.append(self.alpha[self.clean_key.index(char)])
             else:
-                pt += char
-        return pt.lower()
+                pt.append(char)
+        return "".join(pt).lower()
 
     def set_key(self, key: str):
-        """Set a new key for the Monoalphabetic cipher. Input will be normalized.
+        """Set a new key for the monoalphabetic cipher. Input will be normalized.
         Any non-alphabetic characters will be removed from the key for the
         internal representation. Accents and diacritics will be removed. Any
         duplicate character occuring after the first instance will be removed.
@@ -73,7 +84,7 @@ class Monoalphabetic(CipherMachine):
         self.clean_key = (self.clean_key + remain)[: len(self.alpha)]
 
     def set_alpha(self, alpha: str):
-        """Set a new plaintext alphabet for the Monoalphabetic cipher. Any
+        """Set a new plaintext alphabet for the monoalphabetic cipher. Any
         duplicate character occuring after the first instance will be removed.
 
         Args:
@@ -93,7 +104,7 @@ class Monoalphabetic(CipherMachine):
         return (self.clean_key, self.input_key)
 
     def alphabet(self) -> str:
-        """Return the alphabet currently being used by the Monoalphabetic cipher.
+        """Return the plaintext alphabet currently being used by the monoalphabetic cipher.
 
         Returns:
             str: The current alphabet.
