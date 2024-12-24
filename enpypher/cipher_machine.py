@@ -316,6 +316,7 @@ class CipherMachine(ABC):
         conv_units=False,
         other=False,
         conv_other=False,
+        alpha="",
     ) -> str:
         """Removes characters from text if not selected to be kept.
         Removes all non-alphabetic characters by default.
@@ -330,10 +331,20 @@ class CipherMachine(ABC):
             conv_units (bool, optional): Convert units to word form. Defaults to False.
             other (bool, optional): Keep any other characters. Defaults to False.
             conv_other (bool, optional): Convert other characters to their unicode names. Ignored if other is false. Defaults to False.
+            alpha (str, optional): The alphabet to use. If not empty all characters not in the alphabet will be removed. Defaults to "".
 
         Returns:
             str: The cleaned text.
         """
+        text = text.upper()
+
+        if not accent:
+            normal = unicodedata.normalize("NFD", text)
+            text = "".join(c for c in normal if not unicodedata.combining(c))
+
+        if alpha != "":
+            return "".join([char for char in text if char in alpha])
+
         if not num:
             for char in string.digits:
                 text = text.replace(char, "")
@@ -363,15 +374,11 @@ class CipherMachine(ABC):
                     text = text.replace(text[i], "")
                 i += 1
 
-        if not accent:
-            normal = unicodedata.normalize("NFD", text)
-            text = "".join(c for c in normal if not unicodedata.combining(c))
-
         if not space:
             for char in string.whitespace:
                 text = text.replace(char, "")
 
-        return text.upper()
+        return text
 
     @staticmethod
     def _create_grid(key: str, size=5) -> List[List[str | None]]:

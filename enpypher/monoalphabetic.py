@@ -77,10 +77,9 @@ class Monoalphabetic(CipherMachine):
         """
         self.input_key = key
         self.clean_key = self._rm_dup(self._clean_input(self.input_key))
-        remain = self.alpha
-        for char in self.clean_key:
-            if char in remain:
-                remain = remain.replace(char, "")
+        remain = "".join(
+            [char for char in self.alpha if char not in self.clean_key]
+        )
         self.clean_key = (self.clean_key + remain)[: len(self.alpha)]
 
     def set_alpha(self, alpha: str):
@@ -90,8 +89,10 @@ class Monoalphabetic(CipherMachine):
         Args:
             alpha (str): The new alphabet.
         """
-        self.alpha = self._clean_input(
-            alpha, True, True, False, True, False, False, True, False
+        self.alpha = self._rm_dup(
+            self._clean_input(
+                alpha, True, True, False, True, False, False, True, False
+            )
         )
 
     def key(self) -> tuple[str, str]:
