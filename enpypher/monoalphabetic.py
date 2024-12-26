@@ -16,8 +16,7 @@ class Monoalphabetic(CipherMachine):
             key (str): The substitution alphabet (partial or whole).
             alpha (str, optional): The plaintext alphabet. Defaults to string.ascii_uppercase.
         """
-        self.set_alpha(alpha)
-        self.set_key(key)
+        super().__init__(key, alpha)
 
     def encipher(self, pt: str) -> str:
         """Enciphers the provided plaintext with a monoalphabetic substitution
@@ -82,19 +81,6 @@ class Monoalphabetic(CipherMachine):
         )
         self.clean_key = (self.clean_key + remain)[: len(self.alpha)]
 
-    def set_alpha(self, alpha: str):
-        """Set a new plaintext alphabet for the monoalphabetic cipher. Any
-        duplicate character occuring after the first instance will be removed.
-
-        Args:
-            alpha (str): The new alphabet.
-        """
-        self.alpha = self._rm_dup(
-            self._clean_input(
-                alpha, True, True, False, True, False, False, True, False
-            )
-        )
-
     def key(self) -> tuple[str, str]:
         """Return a tuple containing the internal key representation as well
         as the original input key.
@@ -104,10 +90,19 @@ class Monoalphabetic(CipherMachine):
         """
         return (self.clean_key, self.input_key)
 
+    def set_alpha(self, alpha: str):
+        """Set a new plaintext alphabet for the monoalphabetic cipher. Any
+        duplicate character occuring after the first instance will be removed.
+
+        Args:
+            alpha (str): The new alphabet.
+        """
+        super().set_alpha(alpha)
+
     def alphabet(self) -> str:
         """Return the plaintext alphabet currently being used by the monoalphabetic cipher.
 
         Returns:
             str: The current alphabet.
         """
-        return self.alpha
+        return super().alphabet()

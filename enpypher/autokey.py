@@ -1,9 +1,9 @@
 import string
 
-from enpypher.cipher_machine import CipherMachine
+from enpypher.vigenere import Vigenere
 
 
-class Vigenere(CipherMachine):
+class Autokey(Vigenere):
     def __init__(self, key: str, alpha=string.ascii_uppercase):
         """A Vigenère substitution cipher maps each letter from a plaintext alphabet to
         a letter in one of many substitution alphabets. A Vigenère object will take a
@@ -29,29 +29,13 @@ class Vigenere(CipherMachine):
         Returns:
             str: The enciphered text
         """
-        pt = self._clean_input(
-            pt, True, True, False, True, False, False, True, False
+        self.clean_key, temp = (
+            self.clean_key + self._clean_input(pt, alpha=self.alpha),
+            self.clean_key,
         )
-        ct = []
-        i, j = 0, 0
-        while i < len(pt):
-            if pt[i] in self.alpha:
-                ct.append(
-                    self.alpha[
-                        (
-                            self.alpha.index(pt[i])
-                            + self.alpha.index(
-                                self.clean_key[j % len(self.clean_key)]
-                            )
-                        )
-                        % len(self.alpha)
-                    ]
-                )
-                j += 1
-            else:
-                ct.append(pt[i])
-            i += 1
-        return "".join(ct)
+        ct = super().encipher(pt)
+        self.clean_key = temp
+        return ct
 
     def decipher(self, ct: str) -> str:
         """Deciphers the provided ciphertext if it was enciphered with a Vigenère
@@ -66,25 +50,17 @@ class Vigenere(CipherMachine):
             str: The deciphered text.
         """
         ct = ct.upper()
-        pt = []
-        i, j = 0, 0
+        pt = [super().decipher(ct[: len(self.clean_key)]).upper()]
+        temp = self.clean_key
+        i, j = len(self.clean_key), 0
         while i < len(ct):
-            if ct[i] in self.alpha:
-                pt.append(
-                    self.alpha[
-                        (
-                            self.alpha.index(ct[i])
-                            - self.alpha.index(
-                                self.clean_key[j % len(self.clean_key)]
-                            )
-                        )
-                        % len(self.alpha)
-                    ]
-                )
-                j += 1
-            else:
-                pt.append(ct[i])
-            i += 1
+            self.clean_key = pt[j]
+            pt.append(
+                super().decipher(ct[i : i + len(self.clean_key)]).upper()
+            )
+            i += len(self.clean_key)
+            j += 1
+        self.clean_key = temp
         return "".join(pt).lower()
 
     def set_key(self, key: str):
@@ -97,8 +73,7 @@ class Vigenere(CipherMachine):
         Args:
             key (str): The new key.
         """
-        self.input_key = key
-        self.clean_key = self._clean_input(self.input_key, alpha=self.alpha)
+        super().set_key(key)
 
     def key(self) -> tuple[str, str]:
         """Return a tuple containing the internal key representation as well
@@ -107,7 +82,7 @@ class Vigenere(CipherMachine):
         Returns:
             tuple[str, str]: The internal key followed by the original key.
         """
-        return (self.clean_key, self.input_key)
+        return super().key()
 
     def set_alpha(self, alpha: str):
         """Set a new plaintext alphabet for the Vigenère cipher. Any duplicate

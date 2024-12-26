@@ -8,3 +8,4 @@
 
 # Project Specific
 doc/Design.txt
+tests/debug.py

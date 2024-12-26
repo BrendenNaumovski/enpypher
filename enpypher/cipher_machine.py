@@ -9,6 +9,11 @@ from num2words import num2words
 
 class CipherMachine(ABC):
     @abstractmethod
+    def __init__(self, key, alpha=string.ascii_uppercase):
+        self.set_alpha(alpha)
+        self.set_key(key)
+
+    @abstractmethod
     def encipher(self, pt: str) -> str:
         pass
 
@@ -23,6 +28,27 @@ class CipherMachine(ABC):
     @abstractmethod
     def key(self) -> str:
         pass
+
+    def set_alpha(self, alpha: str):
+        """Set a new plaintext alphabet for the cipher. Any duplicate character
+        occuring after the first instance will be removed.
+
+        Args:
+            alpha (str): The new alphabet.
+        """
+        self.alpha = self._rm_dup(
+            self._clean_input(
+                alpha, True, True, False, True, False, False, True, False
+            )
+        )
+
+    def alphabet(self) -> str:
+        """Return the plaintext alphabet currently being used by the cipher.
+
+        Returns:
+            str: The current alphabet.
+        """
+        return self.alpha
 
     # -----------------------------Private-------------------------------- #
 

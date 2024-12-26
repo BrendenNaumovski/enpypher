@@ -16,8 +16,7 @@ class Shift(Monoalphabetic):
             key (int): The amount to shift the plaintext alphabet
             alpha (str, optional): The plaintext alphabet. Defaults to string.ascii_uppercase.
         """
-        self.set_alpha(alpha)
-        self.set_key(key)
+        super().__init__(key, alpha)
 
     def encipher(self, pt):
         """Enciphers the provided plaintext with a shift cipher of the input shift.
@@ -56,15 +55,6 @@ class Shift(Monoalphabetic):
             self._rotate(list(self.alpha), self.input_key)
         )
 
-    def set_alpha(self, alpha):
-        """Set a new plaintext alphabet for the shift cipher. Any duplicate
-        character occuring after the first instance will be removed.
-
-        Args:
-            alpha (str): The new alphabet.
-        """
-        super().set_alpha(alpha)
-
     def key(self):
         """Return a tuple containing the internal key representation as well
         as the original input key.
@@ -73,6 +63,15 @@ class Shift(Monoalphabetic):
             tuple[str, str]: The internal key followed by the original key.
         """
         return super().key()
+
+    def set_alpha(self, alpha):
+        """Set a new plaintext alphabet for the shift cipher. Any duplicate
+        character occuring after the first instance will be removed.
+
+        Args:
+            alpha (str): The new alphabet.
+        """
+        super().set_alpha(alpha)
 
     def alphabet(self):
         """Return the plaintext alphabet currently being used by the shift cipher.
