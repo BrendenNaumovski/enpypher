@@ -50,16 +50,26 @@ class Autokey(Vigenere):
             str: The deciphered text.
         """
         ct = ct.upper()
-        pt = [super().decipher(ct[: len(self.clean_key)]).upper()]
+        pt = []
         temp = self.clean_key
-        i, j = len(self.clean_key), 0
+        i, j = 0, 0
         while i < len(ct):
-            self.clean_key = pt[j]
-            pt.append(
-                super().decipher(ct[i : i + len(self.clean_key)]).upper()
-            )
-            i += len(self.clean_key)
-            j += 1
+            if ct[i] in self.alpha:
+                pt_char = self.alpha[
+                    (
+                        self.alpha.index(ct[i])
+                        - self.alpha.index(
+                            self.clean_key[j % len(self.clean_key)]
+                        )
+                    )
+                    % len(self.alpha)
+                ]
+                pt.append(pt_char)
+                self.clean_key += pt_char
+                j += 1
+            else:
+                pt.append(ct[i])
+            i += 1
         self.clean_key = temp
         return "".join(pt).lower()
 
