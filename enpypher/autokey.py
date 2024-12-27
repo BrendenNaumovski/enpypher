@@ -5,12 +5,16 @@ from enpypher.vigenere import Vigenere
 
 class Autokey(Vigenere):
     def __init__(self, key: str, alpha=string.ascii_uppercase):
-        """A Vigenère substitution cipher maps each letter from a plaintext alphabet to
-        a letter in one of many substitution alphabets. A Vigenère object will take a
-        key (substitution alphabet) and alphabet (English by default) as input and when
-        a call to encipher() is made, will replace every letter in the provided plaintext
-        with the corresponding letter in the key. When a call to decipher() is made, the
-        reverse will occur.
+        """A Autokey Vigenère cipher maps each letter from a plaintext alphabet to
+        a letter in one of many substitution alphabets in the same way as a regular Vigenère
+        cipher. The major difference between the two is that the key for an Autokey enciphered
+        message uses a keyword or phrase, followed by the entire plaintext. This means that
+        the key for any given message is different from one another and longer than the
+        plaintext itself. An Autokey object will take a key (substitution alphabet) and
+        alphabet (English by default) as input and when a call to encipher() is made, will
+        replace every letter in the provided plaintext with the corresponding letter in the
+        substitution alphabet corresponding to the current letter of the key. When a call to
+        decipher() is made, the reverse will occur.
 
         Args:
             key (str): The substitution alphabet (partial or whole).
@@ -19,7 +23,7 @@ class Autokey(Vigenere):
         super().__init__(key, alpha)
 
     def encipher(self, pt: str) -> str:
-        """Enciphers the provided plaintext with a Vigenère substitution
+        """Enciphers the provided plaintext with a Autokey Vigenère
         cipher and the input key. All non-alphabetic characters will remain
         unenciphered. Diacritics will be removed.
 
@@ -38,10 +42,10 @@ class Autokey(Vigenere):
         return ct
 
     def decipher(self, ct: str) -> str:
-        """Deciphers the provided ciphertext if it was enciphered with a Vigenère
-        cipher and the same key. If the text was not originally enciphered with a
-        Vigenère cipher or with a different key, it will likely result in an
-        unexpected output.
+        """Deciphers the provided ciphertext if it was enciphered with an Autokey
+        Vigenère cipher and the same key. If the text was not originally
+        enciphered with a Autokey cipher or with a different key, it will
+        likely result in an unexpected output.
 
         Args:
             ct (str): The ciphertext to be deciphered.
@@ -72,41 +76,3 @@ class Autokey(Vigenere):
             i += 1
         self.clean_key = temp
         return "".join(pt).lower()
-
-    def set_key(self, key: str):
-        """Set a new key for the Vigenère cipher. Input will be normalized.
-        The key should not contain any characters not in the chosen alphabet.
-        Any non-alphabetic characters will be removed from the key for the
-        internal representation. Accents and diacritics will be removed. Any
-        duplicate character occuring after the first instance will be removed.
-
-        Args:
-            key (str): The new key.
-        """
-        super().set_key(key)
-
-    def key(self) -> tuple[str, str]:
-        """Return a tuple containing the internal key representation as well
-        as the original input key.
-
-        Returns:
-            tuple[str, str]: The internal key followed by the original key.
-        """
-        return super().key()
-
-    def set_alpha(self, alpha: str):
-        """Set a new plaintext alphabet for the Vigenère cipher. Any duplicate
-        character occuring after the first instance will be removed.
-
-        Args:
-            alpha (str): The new alphabet.
-        """
-        super().set_alpha(alpha)
-
-    def alphabet(self) -> str:
-        """Return the plaintext alphabet currently being used by the Vigenère cipher.
-
-        Returns:
-            str: The current alphabet.
-        """
-        return super().alphabet()

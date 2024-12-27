@@ -108,20 +108,3 @@ class Vigenere(CipherMachine):
             tuple[str, str]: The internal key followed by the original key.
         """
         return (self.clean_key, self.input_key)
-
-    def set_alpha(self, alpha: str):
-        """Set a new plaintext alphabet for the Vigenère cipher. Any duplicate
-        character occuring after the first instance will be removed.
-
-        Args:
-            alpha (str): The new alphabet.
-        """
-        super().set_alpha(alpha)
-
-    def alphabet(self) -> str:
-        """Return the plaintext alphabet currently being used by the Vigenère cipher.
-
-        Returns:
-            str: The current alphabet.
-        """
-        return super().alphabet()

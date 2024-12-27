@@ -50,6 +50,16 @@ class CipherMachine(ABC):
         """
         return self.alpha
 
+    def findIC(self, text: str) -> float:
+        text = self._clean_input(text, alpha=self.alpha)
+        phio = 0
+        for letter in self.alpha:
+            freq = text.count(letter)
+            phio += freq * (freq - 1)
+        length = len(text)
+        comp = length * (length - 1)
+        return 26 * phio / comp
+
     # -----------------------------Private-------------------------------- #
 
     __WORDS_BEFORE_YEAR = [
