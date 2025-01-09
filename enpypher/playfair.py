@@ -1,4 +1,5 @@
 import string
+from typing import List
 
 from enpypher.cipher_machine import CipherMachine
 
@@ -8,97 +9,118 @@ class Playfair(CipherMachine):
         super().__init__(key, alpha)
 
     def encipher(self, pt: str) -> str:
-        pt = self._prepare_pt(pt)
-        ct = []
-        key = [char for row in self.clean_key for char in row]
-        digram = [pt[0], pt[1]]
-        j = 1
-        for i in range(1, len(pt)):
-            if pt[i] in self.alpha:
-                digram[j % 2] = pt[i]
-                if j % 2 != 0:
-                    let_1 = (
-                        key.index(digram[0]) // 5,
-                        key.index(digram[0]) % 5,
-                    )
-                    let_2 = (
-                        key.index(digram[1]) // 5,
-                        key.index(digram[1]) % 5,
-                    )
-
-                    if let_1[0] == let_2[0]:  # Row Rule
-                        ct.append(self.clean_key[let_1[0]][(let_1[1] + 1) % 5])
-                        ct.append(self.clean_key[let_2[0]][(let_2[1] + 1) % 5])
-                    elif let_1[1] == let_2[1]:  # Column Rule
-                        ct.append(self.clean_key[(let_1[0] + 1) % 5][let_1[1]])
-                        ct.append(self.clean_key[(let_2[0] + 1) % 5][let_2[1]])
-                    else:  # Box Rule
-                        ct.append(self.clean_key[let_1[0]][let_2[1]])
-                        ct.append(self.clean_key[let_2[0]][let_1[1]])
-                j += 1
-            else:
-                ct.append(pt[i])
-        return "".join(ct)
-
-    def _prepare_pt(self, pt: str) -> str:
-        pt = pt.upper()
-        if self.alpha == string.ascii_uppercase.replace("J", ""):
-            pt = pt.replace("J", "I")
-        pt = list(pt)
-        digram = [pt[0], pt[1]]
-        j = 1
-        for i in range(1, len(pt)):
-            if pt[i] in self.alpha:
-                digram[j % 2] = pt[i]
-                if j % 2 != 0 and digram[0] == digram[1]:
-                    pt.insert(i, "X")
-                j += 1
-        if len(pt) % 2 != 0:
-            pt.append("X")
-        return "".join(pt)
+        return self._cipher(pt, True)
 
     def decipher(self, ct: str) -> str:
-        pt = []
-        key = [char for row in self.clean_key for char in row]
-        digram = [ct[0], ct[1]]
-        j = 1
-        for i in range(1, len(ct)):
-            if ct[i] in self.alpha:
-                digram[j % 2] = ct[i]
-                if j % 2 != 0:
-                    let_1 = (
-                        key.index(digram[0]) // 5,
-                        key.index(digram[0]) % 5,
-                    )
-                    let_2 = (
-                        key.index(digram[1]) // 5,
-                        key.index(digram[1]) % 5,
-                    )
-
-                    if let_1[0] == let_2[0]:  # Row Rule
-                        pt.append(self.clean_key[let_1[0]][(let_1[1] - 1) % 5])
-                        pt.append(self.clean_key[let_2[0]][(let_2[1] - 1) % 5])
-                    elif let_1[1] == let_2[1]:  # Column Rule
-                        pt.append(self.clean_key[(let_1[0] - 1) % 5][let_1[1]])
-                        pt.append(self.clean_key[(let_2[0] - 1) % 5][let_2[1]])
-                    else:  # Box Rule
-                        pt.append(self.clean_key[let_1[0]][let_2[1]])
-                        pt.append(self.clean_key[let_2[0]][let_1[1]])
-                j += 1
-            else:
-                pt.append(pt[i])
-        return "".join(pt)
+        return self._cipher(ct, False)
 
     def set_key(self, key: str):
         self.input_key = key
-        self.clean_key = self._create_grid(
-            self._rm_dup(
-                self._clean_input(self.input_key, alpha=self.alpha)
-                + self.alpha
-            )
+        clean_str = self._rm_dup(
+            self._clean_input(key, alpha=self.alpha) + self.alpha
+        )
+        self.grid = self._create_grid(clean_str)
+        self.key_coord = dict(
+            (clean_str[i], (i // 5, i % 5)) for i in range(len(clean_str))
         )
 
     def set_alpha(self, alpha):
-        super().set_alpha(alpha)
-        # Standard Playfair alphabets must fit in a 5x5 grid
-        self.alpha = self.alpha[:25]
+        super().set_alpha(alpha + "♠♣♥♦♤♧♡♢♪♫♬♩𝄞™℗ℒ№©®§¶•✺✿∞")
+        # Standard Playfair alphabets must fit in a 5x5 grid.
+        # If not enough characters are provided, letters of the
+        # filler characters will be appended to fill empty spaces.
+        self.alpha = (self.alpha)[:25]
+
+    ### HELPERS
+
+    def _prepare_pt(self, pt: str) -> str:
+        pt = self._clean_input(
+            pt, True, True, False, True, False, False, True, False
+        )
+        if self.alpha == string.ascii_uppercase.replace("J", ""):
+            pt = pt.replace("J", "I")
+
+        filler = (
+            "X"
+            if self.alpha == string.ascii_uppercase.replace("J", "")
+            else self.alpha[-1]
+        )
+
+        num_alpha = 0
+        new_pt = []
+
+        prev_char = None
+        for char in pt:
+            if char in self.alpha:
+                num_alpha += 1
+
+                if prev_char == char and num_alpha % 2 == 0:
+                    num_alpha += 1
+                    new_pt.append(filler)
+                new_pt.append(char)
+
+                prev_char = char
+            else:
+                new_pt.append(char)
+
+        if num_alpha % 2 != 0:
+            new_pt.append(filler)
+
+        return "".join(new_pt)
+
+    def _process_digram(self, digram, encipher) -> List[str]:
+        new_di = []
+
+        direc = 1 if encipher else -1
+
+        let_1 = self.key_coord[digram[0]]
+        let_2 = self.key_coord[digram[1]]
+
+        if let_1[0] == let_2[0]:  # Row Rule
+            new_di.append(self.grid[let_1[0]][(let_1[1] + direc) % 5])
+            new_di.append(self.grid[let_2[0]][(let_2[1] + direc) % 5])
+        elif let_1[1] == let_2[1]:  # Column Rule
+            new_di.append(self.grid[(let_1[0] + direc) % 5][let_1[1]])
+            new_di.append(self.grid[(let_2[0] + direc) % 5][let_2[1]])
+        else:  # Box Rule
+            new_di.append(self.grid[let_1[0]][let_2[1]])
+            new_di.append(self.grid[let_2[0]][let_1[1]])
+
+        return new_di
+
+    def _merge_text(self, text, new: List[str], non_alpha: List[str]) -> str:
+        full_text = []
+        i, j = 0, 0
+        for char in text:
+            if char in self.alpha:
+                full_text.append(new[i])
+                i += 1
+            else:
+                full_text.append(non_alpha[j])
+                j += 1
+
+        return "".join(full_text)
+
+    def _cipher(self, text: str, encipher) -> str:
+        if encipher:
+            text = self._prepare_pt(text)
+        text = text.upper()
+        new = []
+        non_alpha = []
+        digram = []
+        for char in text:
+            if char in self.alpha:
+                digram.append(char)
+                if len(digram) == 2:
+                    new.extend(self._process_digram(digram, encipher))
+
+                    digram = []
+            else:
+                non_alpha.append(char)
+
+        result = self._merge_text(text, new, non_alpha)
+
+        if not encipher:
+            result = result.lower()
+
+        return result

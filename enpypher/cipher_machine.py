@@ -25,14 +25,13 @@ class CipherMachine(ABC):
     def set_key(self, key) -> None:
         pass
 
-    def key(self) -> tuple:
-        """Retrieve a tuple containing the original input key as well as the
-        internal representation of the key.
+    def key(self):
+        """Retrieve the key currently being used by the cipher.
 
         Returns:
-            tuple: The original key and the internal "clean" key.
+            Any: The current key.
         """
-        return (self.input_key, self.clean_key)
+        return self.input_key
 
     def set_alpha(self, alpha: str):
         """Set a new plaintext alphabet for the cipher. Any duplicate character
