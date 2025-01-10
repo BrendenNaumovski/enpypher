@@ -23,16 +23,6 @@ class Autokey(Vigenere):
         super().__init__(key, alpha)
 
     def encipher(self, pt: str) -> str:
-        """Enciphers the provided plaintext with a Autokey Vigenère
-        cipher and the input key. All non-alphabetic characters will remain
-        unenciphered. Diacritics will be removed.
-
-        Args:
-            pt (str): The plaintext to be enciphered.
-
-        Returns:
-            str: The enciphered text
-        """
         self.clean_key, temp = (
             self.clean_key + self._clean_input(pt, alpha=self.alpha),
             self.clean_key,
@@ -42,37 +32,19 @@ class Autokey(Vigenere):
         return ct
 
     def decipher(self, ct: str) -> str:
-        """Deciphers the provided ciphertext if it was enciphered with an Autokey
-        Vigenère cipher and the same key. If the text was not originally
-        enciphered with a Autokey cipher or with a different key, it will
-        likely result in an unexpected output.
-
-        Args:
-            ct (str): The ciphertext to be deciphered.
-
-        Returns:
-            str: The deciphered text.
-        """
         ct = ct.upper()
         pt = []
-        temp = self.clean_key
-        i, j = 0, 0
-        while i < len(ct):
-            if ct[i] in self.alpha:
+        key = list(self.clean_key)
+        j = 0
+        for char in ct:
+            if char in self.idx:
+                key_let = key[j % len(key)]
                 pt_char = self.alpha[
-                    (
-                        self.alpha.index(ct[i])
-                        - self.alpha.index(
-                            self.clean_key[j % len(self.clean_key)]
-                        )
-                    )
-                    % len(self.alpha)
+                    (self.idx[char] - self.idx[key_let]) % len(self.alpha)
                 ]
                 pt.append(pt_char)
-                self.clean_key += pt_char
+                key.append(pt_char)
                 j += 1
             else:
-                pt.append(ct[i])
-            i += 1
-        self.clean_key = temp
+                pt.append(char)
         return "".join(pt).lower()

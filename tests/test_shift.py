@@ -136,12 +136,13 @@ def test_decipher(init, ct, pt):
 @pytest.mark.parametrize(
     "init, exp_key",
     [
-        ([0], ("ABCDEFGHIJKLMNOPQRSTUVWXYZ", 0)),
-        ([1], ("BCDEFGHIJKLMNOPQRSTUVWXYZA", 1)),
-        ([3], ("DEFGHIJKLMNOPQRSTUVWXYZABC", 3)),
-        ([26], ("ABCDEFGHIJKLMNOPQRSTUVWXYZ", 26)),
-        ([27], ("BCDEFGHIJKLMNOPQRSTUVWXYZA", 27)),
-        ([-3], ("XYZABCDEFGHIJKLMNOPQRSTUVW", -3)),
+        ([0], 0),
+        ([1], 1),
+        ([3], 3),
+        ([26], 26),
+        ([27], 27),
+        ([-3], -3),
+        ([3, "ΑΒΓΔΕΖΗΘΙΚΛΜΝΞΟΠΡΣΤΥΦΧΨΩ"], 3),
     ],
 )
 def test_key(init, exp_key):

@@ -13,16 +13,39 @@ class CipherMachine(ABC):
         self.set_alpha(alpha)
         self.set_key(key)
 
-    @abstractmethod
     def encipher(self, pt: str) -> str:
-        pass
+        """Encipher the given plaintext with the cipher and current key.
 
-    @abstractmethod
+        Args:
+            pt (str): The plaintext to be enciphered.
+
+        Returns:
+            str: The enciphered text.
+        """
+        return self._cipher(pt, True).upper()
+
     def decipher(self, ct: str) -> str:
+        """Decipher the given ciphertext with the cipher and current key.
+
+        Args:
+            pt (str): The ciphertext to be deciphered.
+
+        Returns:
+            str: The deciphered text.
+        """
+        return self._cipher(ct, False).lower()
+
+    @abstractmethod
+    def _cipher(self, text: str, encipher: bool) -> str:
         pass
 
     @abstractmethod
-    def set_key(self, key) -> None:
+    def set_key(self, key: str) -> None:
+        """Sets a new key for the cipher.
+
+        Args:
+            key (str): The new key
+        """
         pass
 
     def key(self):
@@ -34,9 +57,7 @@ class CipherMachine(ABC):
         return self.input_key
 
     def set_alpha(self, alpha: str):
-        """Set a new plaintext alphabet for the cipher. Any duplicate character
-        occuring after the first instance will be removed.
-
+        """Set a new plaintext alphabet for the cipher.
         Args:
             alpha (str): The new alphabet.
         """
@@ -421,18 +442,7 @@ class CipherMachine(ABC):
         return text
 
     @staticmethod
-    def _create_grid(key: str, size=5) -> List[List[str | None]]:
-        """Creates a square grid of the specified size with the provided
-        key written left to right throughout it. Empty spaces will be filled with the value None.
-
-        Args:
-            key (str): The key for the grid.
-            size (int, optional): The size of the grid. Defaults to 5.
-
-        Returns:
-            List[List[str | None]]: A square grid of the spcified size with the
-            key written from left to right inside of it.
-        """
+    def _create_grid(key: str, size=5) -> List[List]:
         grid = [[None for j in range(size)] for i in range(size)]
         i = 0
         for row in range(0, size):
@@ -444,16 +454,7 @@ class CipherMachine(ABC):
 
     @staticmethod
     def _rm_dup(text: str) -> str:
-        """Removes repeated instances of characters from the input.
-
-        Args:
-            text (str): The text to remove repeated characters from.
-
-        Returns:
-            str: The text with repeated characters removed.
-        """
-        new_text = ""
-        for char in text:
-            if char not in new_text:
-                new_text += char
-        return new_text
+        seen = set()
+        return "".join(
+            [char for char in text if not (char in seen or seen.add(char))]
+        )

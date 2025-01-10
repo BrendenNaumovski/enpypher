@@ -17,35 +17,14 @@ class OTP(Vigenere):
             alpha (str, optional): The plaintext alphabet. Defaults to string.ascii_uppercase.
         """
         self.set_alpha(alpha)
+        self.set_key("")
 
     def encipher(self, pt: str) -> str:
-        """Enciphers the provided plaintext with a One Time Pad cipher. The current key will
-        be overwritten with a randomly generated string of only alphabetic characters as long
-        as the plaintext. The key can be accesssed from the first element of the tuple returned
-        by key().
-
-        Args:
-            pt (str): The plaintext to be enciphered.
-
-        Returns:
-            str: The enciphered text.
-        """
-        self.clean_key = self._rand_string(len(pt))
-        self.input_key = None
+        aset = set(self.alpha)
+        length = sum(1 for char in pt if char in aset)
+        self.clean_key = self._rand_string(length)
+        self.input_key = self.clean_key
         return super().encipher(pt)
-
-    def decipher(self, ct: str) -> str:
-        """Deciphers the provided ciphertext with the current key. To acheive the perfect
-        security that a OTP offers, the key should be completely disposed of after the
-        message is deciphered.
-
-        Args:
-            ct (str): The ciphertext to be decipohered.
-
-        Returns:
-            str: The deciphered text.
-        """
-        return super().decipher(ct)
 
     def _rand_string(self, length):
         return "".join(random.choice(self.alpha) for i in range(length))

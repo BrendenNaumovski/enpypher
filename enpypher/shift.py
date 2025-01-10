@@ -18,68 +18,10 @@ class Shift(Monoalphabetic):
         """
         super().__init__(key, alpha)
 
-    def encipher(self, pt):
-        """Enciphers the provided plaintext with a shift cipher of the input shift.
-        All non-alphabetic characters will remain unenciphered. Diacritics will be
-        removed.
-
-        Args:
-            pt (str): The plaintext to be enciphered.
-
-        Returns:
-            str: The enciphered text
-        """
-        return super().encipher(pt)
-
-    def decipher(self, ct):
-        """Deciphers the provided ciphertext if it was enciphered with a shift cipher and
-        the same shift amount. If the text was not originally enciphered with a shift cipher
-        or with a different key, it will likely result in an unexpected output.
-
-        Args:
-            ct (str): The ciphertext to be deciphered.
-
-        Returns:
-            str: The deciphered text.
-        """
-        return super().decipher(ct)
-
     def set_key(self, key):
-        """Set a new shift amount for the shift cipher.
-
-        Args:
-            key (str): The new shift amount.
-        """
+        sub_alpha = "".join(self._rotate(list(self.alpha), key))
+        super().set_key(sub_alpha)
         self.input_key = key
-        self.clean_key = "".join(
-            self._rotate(list(self.alpha), self.input_key)
-        )
-
-    def key(self):
-        """Return a tuple containing the internal key representation as well
-        as the original input key.
-
-        Returns:
-            tuple[str, str]: The internal key followed by the original key.
-        """
-        return super().key()
-
-    def set_alpha(self, alpha):
-        """Set a new plaintext alphabet for the shift cipher. Any duplicate
-        character occuring after the first instance will be removed.
-
-        Args:
-            alpha (str): The new alphabet.
-        """
-        super().set_alpha(alpha)
-
-    def alphabet(self):
-        """Return the plaintext alphabet currently being used by the shift cipher.
-
-        Returns:
-            str: The current alphabet.
-        """
-        return super().alphabet()
 
     @staticmethod
     def _rotate(li: list, n):

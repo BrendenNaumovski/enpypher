@@ -18,93 +18,37 @@ class Vigenere(CipherMachine):
         """
         super().__init__(key, alpha)
 
-    def encipher(self, pt: str) -> str:
-        """Enciphers the provided plaintext with a Vigenère substitution
-        cipher and the input key. All non-alphabetic characters will remain
-        unenciphered. Diacritics will be removed.
+    def _cipher(self, text, encipher):
+        text = text.upper()
+        if encipher:
+            text = self._clean_input(
+                text, True, True, False, True, False, False, True, False
+            )
 
-        Args:
-            pt (str): The plaintext to be enciphered.
-
-        Returns:
-            str: The enciphered text
-        """
-        pt = self._clean_input(
-            pt, True, True, False, True, False, False, True, False
-        )
-        ct = []
-        i, j = 0, 0
-        while i < len(pt):
-            if pt[i] in self.alpha:
-                ct.append(
+        # Shift forward or back depending on which
+        # encipher/decipher operation is selected.
+        direc = 1 if encipher else -1
+        new_text = []
+        j = 0
+        for char in text:
+            if char in self.alpha:
+                key_let = self.clean_key[j % len(self.clean_key)]
+                new_text.append(
                     self.alpha[
-                        (
-                            self.alpha.index(pt[i])
-                            + self.alpha.index(
-                                self.clean_key[j % len(self.clean_key)]
-                            )
-                        )
+                        (self.idx[char] + direc * self.idx[key_let])
                         % len(self.alpha)
                     ]
                 )
                 j += 1
             else:
-                ct.append(pt[i])
-            i += 1
-        return "".join(ct)
+                new_text.append(char)
 
-    def decipher(self, ct: str) -> str:
-        """Deciphers the provided ciphertext if it was enciphered with a Vigenère
-        cipher and the same key. If the text was not originally enciphered with a
-        Vigenère cipher or with a different key, it will likely result in an
-        unexpected output.
-
-        Args:
-            ct (str): The ciphertext to be deciphered.
-
-        Returns:
-            str: The deciphered text.
-        """
-        ct = ct.upper()
-        pt = []
-        i, j = 0, 0
-        while i < len(ct):
-            if ct[i] in self.alpha:
-                pt.append(
-                    self.alpha[
-                        (
-                            self.alpha.index(ct[i])
-                            - self.alpha.index(
-                                self.clean_key[j % len(self.clean_key)]
-                            )
-                        )
-                        % len(self.alpha)
-                    ]
-                )
-                j += 1
-            else:
-                pt.append(ct[i])
-            i += 1
-        return "".join(pt).lower()
+        return "".join(new_text)
 
     def set_key(self, key: str):
-        """Set a new key for the Vigenère cipher. Input will be normalized.
-        The key should not contain any characters not in the chosen alphabet.
-        Any non-alphabetic characters will be removed from the key for the
-        internal representation. Accents and diacritics will be removed. Any
-        duplicate character occuring after the first instance will be removed.
-
-        Args:
-            key (str): The new key.
-        """
         self.input_key = key
         self.clean_key = self._clean_input(self.input_key, alpha=self.alpha)
 
-    def key(self) -> tuple[str, str]:
-        """Return a tuple containing the internal key representation as well
-        as the original input key.
-
-        Returns:
-            tuple[str, str]: The internal key followed by the original key.
-        """
-        return (self.clean_key, self.input_key)
+    def set_alpha(self, alpha):
+        super().set_alpha(alpha)
+        self.idx = {char: i for i, char in enumerate(self.alpha)}

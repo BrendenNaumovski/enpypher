@@ -1,5 +1,7 @@
 import string
 
+from bidict import bidict
+
 from enpypher.cipher_machine import CipherMachine
 
 
@@ -18,91 +20,33 @@ class Monoalphabetic(CipherMachine):
         """
         super().__init__(key, alpha)
 
-    def encipher(self, pt: str) -> str:
-        """Enciphers the provided plaintext with a monoalphabetic substitution
-        cipher and the input key. All non-alphabetic characters will remain
-        unenciphered. Diacritics will be removed.
+    def _cipher(self, text, encihper):
+        text = text.upper()
+        if encihper:
+            text = self._clean_input(
+                text, True, True, False, True, False, False, True, False
+            )
 
-        Args:
-            pt (str): The plaintext to be enciphered.
-
-        Returns:
-            str: The enciphered text
-        """
-        pt = self._clean_input(
-            pt, True, True, False, True, False, False, True, False
-        )
-        ct = []
-        for char in pt:
-            if char in self.alpha:
-                ct.append(self.clean_key[self.alpha.index(char)])
+        new_text = []
+        for char in text:
+            if char in self.key_map:
+                if encihper:
+                    new_text.append(self.key_map[char])
+                else:
+                    new_text.append(self.key_map.inv[char])
             else:
-                ct.append(char)
-        return "".join(ct)
+                new_text.append(char)
 
-    def decipher(self, ct: str) -> str:
-        """Deciphers the provided ciphertext if it was enciphered with a monoalphabetic
-        substitution cipher and the same key. If the text was not originally enciphered
-        with an MA cipher or with a different key, it will likely result in an unexpected
-        output.
-
-        Args:
-            ct (str): The ciphertext to be deciphered.
-
-        Returns:
-            str: The deciphered text.
-        """
-        ct = ct.upper()
-        pt = []
-        for char in ct:
-            if char in self.clean_key:
-                pt.append(self.alpha[self.clean_key.index(char)])
-            else:
-                pt.append(char)
-        return "".join(pt).lower()
+        return "".join(new_text)
 
     def set_key(self, key: str):
-        """Set a new key for the monoalphabetic cipher. Input will be normalized.
-        Any non-alphabetic characters will be removed from the key for the
-        internal representation. Accents and diacritics will be removed. Any
-        duplicate character occuring after the first instance will be removed.
-        The key should not contain any characters not in the chosen alphabet. If
-        the key is not as long as the alphabet, characters from the beginning of
-        the alphabet will be added until the length is the same. If the key is
-        longer than the alphabet, the key will be shortened to match the length.
-
-        Args:
-            key (str): The new key.
-        """
         self.input_key = key
-        self.clean_key = self._rm_dup(self._clean_input(self.input_key))
-        remain = "".join(
-            [char for char in self.alpha if char not in self.clean_key]
+        clean = self._rm_dup(
+            self._clean_input(self.input_key, alpha=self.alpha)
         )
-        self.clean_key = (self.clean_key + remain)[: len(self.alpha)]
-
-    def key(self) -> tuple[str, str]:
-        """Return a tuple containing the internal key representation as well
-        as the original input key.
-
-        Returns:
-            tuple[str, str]: The internal key followed by the original key.
-        """
-        return (self.clean_key, self.input_key)
-
-    def set_alpha(self, alpha: str):
-        """Set a new plaintext alphabet for the monoalphabetic cipher. Any
-        duplicate character occuring after the first instance will be removed.
-
-        Args:
-            alpha (str): The new alphabet.
-        """
-        super().set_alpha(alpha)
-
-    def alphabet(self) -> str:
-        """Return the plaintext alphabet currently being used by the monoalphabetic cipher.
-
-        Returns:
-            str: The current alphabet.
-        """
-        return super().alphabet()
+        clean += "".join([char for char in self.alpha if char not in clean])[
+            : len(self.alpha)
+        ]
+        self.key_map = bidict(
+            {self.alpha[i]: clean[i] for i in range(len(self.alpha))}
+        )

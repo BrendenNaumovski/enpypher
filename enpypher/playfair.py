@@ -20,9 +20,9 @@ class Playfair(CipherMachine):
             self._clean_input(key, alpha=self.alpha) + self.alpha
         )
         self.grid = self._create_grid(clean_str)
-        self.key_coord = dict(
-            (clean_str[i], (i // 5, i % 5)) for i in range(len(clean_str))
-        )
+        self.key_coord = {
+            char: (i // 5, i % 5) for i, char in enumerate(clean_str)
+        }
 
     def set_alpha(self, alpha):
         super().set_alpha(alpha + "♠♣♥♦♤♧♡♢♪♫♬♩𝄞™℗ℒ№©®§¶•✺✿∞")
@@ -105,22 +105,22 @@ class Playfair(CipherMachine):
         if encipher:
             text = self._prepare_pt(text)
         text = text.upper()
-        new = []
+        new_text = []
         non_alpha = []
         digram = []
         for char in text:
             if char in self.alpha:
                 digram.append(char)
                 if len(digram) == 2:
-                    new.extend(self._process_digram(digram, encipher))
+                    new_text.extend(self._process_digram(digram, encipher))
 
                     digram = []
             else:
                 non_alpha.append(char)
 
-        result = self._merge_text(text, new, non_alpha)
+        new_text = self._merge_text(text, new_text, non_alpha)
 
         if not encipher:
-            result = result.lower()
+            new_text = new_text.lower()
 
-        return result
+        return new_text

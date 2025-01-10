@@ -146,33 +146,21 @@ def test_decipher(init, ct, pt):
 @pytest.mark.parametrize(
     "init, exp_key",
     [
-        (["key"], ("KEYABCDFGHIJLMNOPQRSTUVWXZ", "key")),
-        (["KEY"], ("KEYABCDFGHIJLMNOPQRSTUVWXZ", "KEY")),
-        (["secret"], ("SECRTABDFGHIJKLMNOPQUVWXYZ", "secret")),
-        (
-            ["defghijklmnopqrstuvwxyzabc"],
-            ("DEFGHIJKLMNOPQRSTUVWXYZABC", "defghijklmnopqrstuvwxyzabc"),
-        ),
+        (["key"], "key"),
+        (["KEY"], "KEY"),
+        (["secret"], "secret"),
+        (["defghijklmnopqrstuvwxyzabc"], "defghijklmnopqrstuvwxyzabc"),
         (
             ["thequickbrownfoxjumpsoverthelazydog"],
-            (
-                "THEQUICKBROWNFXJMPSVLAZYDG",
-                "thequickbrownfoxjumpsoverthelazydog",
-            ),
+            "thequickbrownfoxjumpsoverthelazydog",
         ),
         (
             ["the quick brown fox jumps over 3 lazy dogs."],
-            (
-                "THEQUICKBROWNFXJMPSVLAZYDG",
-                "the quick brown fox jumps over 3 lazy dogs.",
-            ),
+            "the quick brown fox jumps over 3 lazy dogs.",
         ),
         (
             ["ΜΥΣΤΙΚΟ", "ΑΒΓΔΕΖΗΘΙΚΛΜΝΞΟΠΡΣΤΥΦΧΨΩ"],
-            (
-                "ΜΥΣΤΙΚΟΑΒΓΔΕΖΗΘΛΝΞΠΡΦΧΨΩ",
-                "ΜΥΣΤΙΚΟ",
-            ),
+            "ΜΥΣΤΙΚΟ",
         ),
     ],
 )
