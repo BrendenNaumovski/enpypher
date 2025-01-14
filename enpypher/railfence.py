@@ -7,6 +7,9 @@ class Railfence(CipherMachine):
         rails = [[] for i in range(self.input_key)]
         for i in range(len(text)):
             rails[(i % N) if i // N % 2 == 0 else (N - (i % N))].append(i)
+
+        # Idea for mapping from reddit users u/adrian17 and u/jetRink
+        # https://www.reddit.com/r/dailyprogrammer/comments/2rnwzf/20150107_challenge_196_intermediate_rail_fence/
         mapping = {
             i: v for i, v in enumerate(i for rail in rails for i in rail)
         }
