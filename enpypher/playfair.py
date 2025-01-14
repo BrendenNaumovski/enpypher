@@ -8,11 +8,29 @@ class Playfair(CipherMachine):
     def __init__(self, key, alpha=string.ascii_uppercase.replace("J", "")):
         super().__init__(key, alpha)
 
-    def encipher(self, pt: str) -> str:
-        return self._cipher(pt, True)
+    def _cipher(self, text: str, encipher) -> str:
+        if encipher:
+            text = self._prepare_pt(text)
+        text = text.upper()
+        new = []
+        non_alpha = []
+        digram = []
+        for char in text:
+            if char in self.alpha:
+                digram.append(char)
+                if len(digram) == 2:
+                    new.extend(self._process_digram(digram, encipher))
 
-    def decipher(self, ct: str) -> str:
-        return self._cipher(ct, False)
+                    digram = []
+            else:
+                non_alpha.append(char)
+
+        result = self._merge_text(text, new, non_alpha)
+
+        if not encipher:
+            result = result.lower()
+
+        return result
 
     def set_key(self, key: str):
         self.input_key = key
@@ -100,27 +118,3 @@ class Playfair(CipherMachine):
                 j += 1
 
         return "".join(full_text)
-
-    def _cipher(self, text: str, encipher) -> str:
-        if encipher:
-            text = self._prepare_pt(text)
-        text = text.upper()
-        new_text = []
-        non_alpha = []
-        digram = []
-        for char in text:
-            if char in self.alpha:
-                digram.append(char)
-                if len(digram) == 2:
-                    new_text.extend(self._process_digram(digram, encipher))
-
-                    digram = []
-            else:
-                non_alpha.append(char)
-
-        new_text = self._merge_text(text, new_text, non_alpha)
-
-        if not encipher:
-            new_text = new_text.lower()
-
-        return new_text
