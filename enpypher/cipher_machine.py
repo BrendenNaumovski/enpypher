@@ -8,7 +8,6 @@ from num2words import num2words
 
 
 class CipherMachine(ABC):
-    @abstractmethod
     def __init__(self, key, alpha=string.ascii_uppercase):
         self.set_alpha(alpha)
         self.set_key(key)
