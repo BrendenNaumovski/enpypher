@@ -6,17 +6,27 @@ from enpypher.cipher_machine import CipherMachine
 
 class Columnar(CipherMachine):
     def _cipher(self, text: str, encipher: bool) -> str:
+        if encipher:
+            text = self._clean_input(
+                text, True, True, False, True, False, False, True, False
+            )
         grid = self._write_grid(text, encipher)
         return self._read_grid(grid, encipher)
 
     def set_key(self, key):
         self.input_key = key
         self.clean_key = self._clean_input(key, alpha=self.alpha)
+        order = [None] * len(self.clean_key)
         sort_key = [(char, i) for i, char in enumerate(sorted(self.clean_key))]
-        og = {char: idx for idx, char in enumerate(self.clean_key)}
-        self.col_map = [
-            idx for char, idx in sorted(sort_key, key=lambda x: og[x[0]])
-        ]
+        curr_idx = {char: 0 for char in self.clean_key}
+        for pair in sort_key:
+            index = self.clean_key.index(pair[0], curr_idx[pair[0]])
+            order[index] = pair[1]
+            curr_idx[pair[0]] = index + 1
+        order = sorted(
+            [(old_idx, new_idx) for new_idx, old_idx in enumerate(order)]
+        )
+        self.col_map = [new_idx for old_idx, new_idx in order]
 
     # Helpers
     def _write_grid(self, text: str, encipher: bool) -> List[List[str]]:
@@ -45,6 +55,7 @@ class Columnar(CipherMachine):
     def _read_grid(self, grid: List[List[str]], encipher: bool) -> str:
         new_text = []
 
+        print(grid)
         if encipher:
             for col in self.col_map:
                 for row in range(len(grid)):
