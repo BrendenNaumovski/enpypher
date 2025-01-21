@@ -324,7 +324,7 @@ class CipherMachine(ABC):
             i += 1
 
         for i in range(len(text_list)):
-            if text_list[i][0].isdecimal():
+            if text_list[i] != "" and text_list[i][0].isdecimal():
                 before = text_list[i - 1]
                 isYear = False
                 for phrase in cls.__WORDS_BEFORE_YEAR:
@@ -438,7 +438,7 @@ class CipherMachine(ABC):
             for char in string.whitespace:
                 text = text.replace(char, "")
 
-        return text
+        return text.upper()
 
     @staticmethod
     def _create_grid(key: str, size=5) -> List[List]:
