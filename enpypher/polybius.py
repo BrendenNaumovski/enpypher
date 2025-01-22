@@ -1,11 +1,16 @@
 import string
 
+from bidict import bidict
+
 from enpypher.cipher_machine import CipherMachine
 
 
 class Polybius(CipherMachine):
-    def __init__(self, key, alpha=string.ascii_uppercase.replace("J", "")):
-        super().__init__(key, alpha)
+    def __init__(
+        self, key, size=5, alpha=string.ascii_uppercase.replace("J", "")
+    ):
+        self.set_alpha(alpha)
+        self.set_key(key, size)
 
     def _cipher(self, text, encipher):
         if encipher:
@@ -26,36 +31,33 @@ class Polybius(CipherMachine):
             coord = []
             for char in text:
                 if char in string.digits:
-                    coord.append(int(char))
+                    coord.append(int(char) - 1)
                     if len(coord) == 2:
-                        new_text.append(self.grid[coord[0] - 1][coord[1] - 1])
+                        new_text.append(self.key_coord.inv[tuple(coord)])
                         coord = []
                 else:
                     new_text.append(char)
 
         return "".join(new_text)
 
-    def set_key(self, key):
+    def set_key(self, key, size=5):
         self.input_key = key
+        self.size = size
         clean_str = self._rm_dup(
             self._clean_input(key, alpha=self.alpha) + self.alpha
         )
-        self.grid = self._create_grid(clean_str)
-        self.key_coord = {
-            char: (i // 5, i % 5) for i, char in enumerate(clean_str)
-        }
-
-    def set_alpha(self, alpha):
-        super().set_alpha(alpha + "♠♣♥♦♤♧♡♢♪♫♬♩𝄞™℗ℒ№©®§¶•✺✿∞")
-        # Standard Polybius Square alphabets must fit in a 5x5 grid.
-        # If not enough characters are provided, letters of the
-        # filler characters will be appended to fill empty spaces.
-        self.alpha = (self.alpha)[:25]
+        self.key_coord = bidict(
+            {
+                char: (i // self.size, i % self.size)
+                for i, char in enumerate(clean_str)
+            }
+        )
 
     ### HELPERS
     def _prepare_pt(self, pt: str) -> str:
+        conv = not all(c in self.alpha for c in string.digits)
         pt = self._clean_input(
-            pt, True, True, False, True, True, False, True, False
+            pt, True, True, False, True, conv, False, True, False
         )
         if self.alpha == string.ascii_uppercase.replace("J", ""):
             pt = pt.replace("J", "I")
