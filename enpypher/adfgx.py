@@ -4,6 +4,7 @@ from bidict import bidict
 
 from enpypher.cipher_machine import CipherMachine
 from enpypher.columnar import Columnar
+from enpypher.polybius import Polybius
 
 
 class ADFGX(CipherMachine):
@@ -22,37 +23,40 @@ class ADFGX(CipherMachine):
 
         text = text.upper()
 
-        c = Columnar(self.trans_key)
+        pb = Polybius(self.grid_key, 5, self.alpha)
+
+        if self.alpha == string.ascii_uppercase.replace("J", ""):
+            col_alpha = string.ascii_uppercase
+        else:
+            col_alpha = self.alpha
+        c = Columnar(self.trans_key, col_alpha)
+        print(c.col_map)
 
         if encipher:
-            text = self._grid_cipher(text, encipher)
+            text = pb.encipher(text)
+            text = self._convert(text, encipher)
             text = c.encipher(text)
         else:
             text = c.decipher(text)
-            text = self._grid_cipher(text, encipher)
+            text = self._convert(text, encipher)
+            text = pb.decipher(text)
 
         return text
 
-    def _grid_cipher(self, text: str, encipher: bool) -> str:
+    def _convert(self, text: str, encipher: bool) -> str:
         text = text.upper()
 
         new_text = []
         if encipher:
             for char in text:
-                if char in self.alpha:
-                    coord = self.key_coord[char]
-                    new_text.append(coord[0])
-                    new_text.append(coord[1])
+                if char in "12345":
+                    new_text.append(self.mapping[char])
                 else:
                     new_text.append(char)
         else:
-            coord = []
             for char in text:
-                if char in self.key_coord:
-                    coord.append(char)
-                    if len(coord) == 2:
-                        new_text.append(self.key_coord.inv[tuple(coord)])
-                        coord = []
+                if char in "ADFGX":
+                    new_text.append(self.mapping.inv[char])
                 else:
                     new_text.append(char)
         return "".join(new_text)
@@ -69,13 +73,15 @@ class ADFGX(CipherMachine):
     def set_key(self, grid_key, trans_key) -> None:
         self.grid_key = grid_key
         self.trans_key = trans_key
-        clean_str = self._rm_dup(
-            self._clean_input(self.grid_key, alpha=self.alpha) + self.alpha
-        )
-        coord = ["A", "D", "F", "G", "X"]
-        self.key_coord = bidict(
+        self.mapping = bidict(
             {
-                char: (coord[i // 5], coord[i % 5])
-                for i, char in enumerate(clean_str)
+                "1": "A",
+                "2": "D",
+                "3": "F",
+                "4": "G",
+                "5": "X",
             }
         )
+
+    def key(self):
+        return self.grid_key, self.trans_key

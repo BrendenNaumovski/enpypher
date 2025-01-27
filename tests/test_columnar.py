@@ -66,6 +66,11 @@ from enpypher.columnar import Columnar
             "Η γρήγορη καφετιά αλεπού πηδά πάνω από το τεμπέλικο σκυλί.",
             "ΗΑΑΠΝΤΕΚΓΦΛΗΩΟΛΥΗΡΤΠΑΑΤΚΙΟΕΕΔ  ΙΛΓ ΑΥΠΟΜ ΡΚ  Α ΠΣ ΗΙΟ ΠΕΟ.",
         ),
+        (  # Case added to test full grid after trouble with ADFGX
+            ["secret"],
+            "GXDXAD GDXAFADAAA AXGFFXXFFG DFFXXG FAXAFFGAGG FXXDADGF GXDXAD FDAGXXAF DDFXDG",
+            "DDAGFXXGDG XFXGDXFFAAX DXDAAAF GF DDDFDXXAFGXAGAXFAXG AAXFFGXFAGDDF XD FFGXA G",
+        ),
     ],
 )
 def test_encipher(init, pt, ct):
@@ -135,6 +140,11 @@ def test_encipher(init, pt, ct):
             ["ΜΥΣΤΙΚΟ", "ΑΒΓΔΕΖΗΘΙΚΛΜΝΞΟΠΡΣΤΥΦΧΨΩ"],
             "ΗΑΑΠΝΤΕΚΓΦΛΗΩΟΛΥΗΡΤΠΑΑΤΚΙΟΕΕΔ  ΙΛΓ ΑΥΠΟΜ ΡΚ  Α ΠΣ ΗΙΟ ΠΕΟ.",
             "η γρηγορη καφετια αλεπου πηδα πανω απο το τεμπελικο σκυλι.",
+        ),
+        (  # Case added to test full grid after trouble with ADFGX
+            ["secret"],
+            "DDAGFXXGDG XFXGDXFFAAX DXDAAAF GF DDDFDXXAFGXAGAXFAXG AAXFFGXFAGDDF XD FFGXA G",
+            "gxdxad gdxafadaaa axgffxxffg dffxxg faxaffgagg fxxdadgf gxdxad fdagxxaf ddfxdg",
         ),
     ],
 )

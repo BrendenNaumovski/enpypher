@@ -11,6 +11,7 @@ class Columnar(CipherMachine):
                 text, True, True, False, True, False, False, True, False
             )
         grid = self._write_grid(text, encipher)
+        print(grid)
         return self._read_grid(grid, encipher)
 
     def set_key(self, key):
@@ -25,6 +26,9 @@ class Columnar(CipherMachine):
         cols = len(self.clean_key)
         rows = math.ceil(len(text) / cols)
         last_len = len(text) % cols
+        if last_len == 0:
+            last_len = cols
+
         grid = [[""] * cols for _ in range(rows)]
 
         i = 0
